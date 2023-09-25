@@ -1,10 +1,8 @@
 import { z } from "zod";
 
-const Difficulty = z
-  .enum(["Easy", "Medium", "Hard"])
-  .refine((value) => value !== undefined, {
-    message: "Difficulty selection is required",
-  });
+// need to include "" as part of possibility Difficulty values due to shadcn bug with select
+// see: https://github.com/shadcn-ui/ui/issues/549
+const Difficulty = z.enum(["", "Easy", "Medium", "Hard"]);
 
 const Question = z.object({
   title: z.string().nonempty({ message: "Title is required" }),

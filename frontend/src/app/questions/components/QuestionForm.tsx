@@ -1,5 +1,3 @@
-"use client";
-
 import { CheckIcon, ChevronsUpDown } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -58,7 +56,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     defaultValues: {
       title: "",
       link: "",
-      difficulty: undefined,
+      difficulty: "",
       description: "",
       categories: [],
     },
@@ -77,6 +75,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     );
 
     if (isDuplicate) {
+      console.log(currentQuestions);
       alert("Error: Duplicate title or URL found.");
       return;
     }
@@ -193,9 +192,10 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Difficulty</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
+                    {field.value === "" && "Select a difficulty"}
                     <SelectValue placeholder="Select a difficulty" />
                   </SelectTrigger>
                 </FormControl>
