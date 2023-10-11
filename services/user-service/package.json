@@ -1,9 +1,9 @@
 {
   "name": "user-service",
   "scripts": {
-    "test": "jest",
     "dev": "ts-node-dev start.ts",
-    "lint:fix": "eslint --ext .ts --fix ."
+    "lint:fix": "eslint --ext .ts --fix .",
+    "test": "bash ./scripts/run-integration.sh"
   },
   "devDependencies": {
     "@babel/core": "^7.23.0",

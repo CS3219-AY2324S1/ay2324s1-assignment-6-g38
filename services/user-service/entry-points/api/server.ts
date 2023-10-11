@@ -12,7 +12,7 @@ let connection: Server;
 
 // ️️️✅ Best Practice: API exposes a start/stop function to allow testing control WHEN this should happen
 async function openConnection(
-  expressApp: express.Application,
+  expressApp: express.Application
 ): Promise<AddressInfo> {
   return new Promise((resolve) => {
     const webServerPort = process.env.SERVER_PORT || 2001;

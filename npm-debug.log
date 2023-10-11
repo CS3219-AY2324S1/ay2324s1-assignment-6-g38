@@ -1,0 +1,195 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'update' ]
+2 info using npm@3.5.2
+3 info using node@v8.10.0
+4 silly mapToRegistry name husky
+5 silly mapToRegistry using default registry
+6 silly mapToRegistry registry https://registry.npmjs.org/
+7 silly mapToRegistry uri https://registry.npmjs.org/husky
+8 silly mapToRegistry name pino
+9 silly mapToRegistry using default registry
+10 silly mapToRegistry registry https://registry.npmjs.org/
+11 silly mapToRegistry uri https://registry.npmjs.org/pino
+12 silly mapToRegistry name ts-node
+13 silly mapToRegistry using default registry
+14 silly mapToRegistry registry https://registry.npmjs.org/
+15 silly mapToRegistry uri https://registry.npmjs.org/ts-node
+16 verbose request uri https://registry.npmjs.org/husky
+17 verbose request no auth needed
+18 info attempt registry request try #1 at 1:16:56 AM
+19 verbose request id e0dc7e16e72c79ed
+20 http request GET https://registry.npmjs.org/husky
+21 verbose request uri https://registry.npmjs.org/pino
+22 verbose request no auth needed
+23 info attempt registry request try #1 at 1:16:56 AM
+24 http request GET https://registry.npmjs.org/pino
+25 verbose request uri https://registry.npmjs.org/ts-node
+26 verbose request no auth needed
+27 info attempt registry request try #1 at 1:16:56 AM
+28 http request GET https://registry.npmjs.org/ts-node
+29 http 200 https://registry.npmjs.org/ts-node
+30 verbose headers { date: 'Wed, 11 Oct 2023 17:16:56 GMT',
+30 verbose headers   'content-type': 'application/json',
+30 verbose headers   'transfer-encoding': 'chunked',
+30 verbose headers   connection: 'keep-alive',
+30 verbose headers   'cf-ray': '8148c0f76d459e3b-SIN',
+30 verbose headers   'cf-cache-status': 'HIT',
+30 verbose headers   'access-control-allow-origin': '*',
+30 verbose headers   age: '140',
+30 verbose headers   'cache-control': 'public, max-age=300',
+30 verbose headers   etag: 'W/"d2ffcb8fafb05cd259e42aed80d09201"',
+30 verbose headers   'last-modified': 'Sat, 30 Sep 2023 21:07:38 GMT',
+30 verbose headers   vary: 'accept-encoding, accept',
+30 verbose headers   server: 'cloudflare',
+30 verbose headers   'content-encoding': 'gzip' }
+31 silly get cb [ 200,
+31 silly get   { date: 'Wed, 11 Oct 2023 17:16:56 GMT',
+31 silly get     'content-type': 'application/json',
+31 silly get     'transfer-encoding': 'chunked',
+31 silly get     connection: 'keep-alive',
+31 silly get     'cf-ray': '8148c0f76d459e3b-SIN',
+31 silly get     'cf-cache-status': 'HIT',
+31 silly get     'access-control-allow-origin': '*',
+31 silly get     age: '140',
+31 silly get     'cache-control': 'public, max-age=300',
+31 silly get     etag: 'W/"d2ffcb8fafb05cd259e42aed80d09201"',
+31 silly get     'last-modified': 'Sat, 30 Sep 2023 21:07:38 GMT',
+31 silly get     vary: 'accept-encoding, accept',
+31 silly get     server: 'cloudflare',
+31 silly get     'content-encoding': 'gzip' } ]
+32 verbose get saving ts-node to /home/awj/.npm/registry.npmjs.org/ts-node/.cache.json
+33 http 200 https://registry.npmjs.org/pino
+34 verbose headers { date: 'Wed, 11 Oct 2023 17:16:57 GMT',
+34 verbose headers   'content-type': 'application/json',
+34 verbose headers   'transfer-encoding': 'chunked',
+34 verbose headers   connection: 'keep-alive',
+34 verbose headers   'cf-ray': '8148c0f75a48893e-SIN',
+34 verbose headers   'cf-cache-status': 'REVALIDATED',
+34 verbose headers   'access-control-allow-origin': '*',
+34 verbose headers   'cache-control': 'public, max-age=300',
+34 verbose headers   etag: 'W/"b87dd43781cb0104d8c0898f645ab5ed"',
+34 verbose headers   'last-modified': 'Mon, 09 Oct 2023 19:10:44 GMT',
+34 verbose headers   vary: 'accept-encoding, accept',
+34 verbose headers   server: 'cloudflare',
+34 verbose headers   'content-encoding': 'gzip' }
+35 silly get cb [ 200,
+35 silly get   { date: 'Wed, 11 Oct 2023 17:16:57 GMT',
+35 silly get     'content-type': 'application/json',
+35 silly get     'transfer-encoding': 'chunked',
+35 silly get     connection: 'keep-alive',
+35 silly get     'cf-ray': '8148c0f75a48893e-SIN',
+35 silly get     'cf-cache-status': 'REVALIDATED',
+35 silly get     'access-control-allow-origin': '*',
+35 silly get     'cache-control': 'public, max-age=300',
+35 silly get     etag: 'W/"b87dd43781cb0104d8c0898f645ab5ed"',
+35 silly get     'last-modified': 'Mon, 09 Oct 2023 19:10:44 GMT',
+35 silly get     vary: 'accept-encoding, accept',
+35 silly get     server: 'cloudflare',
+35 silly get     'content-encoding': 'gzip' } ]
+36 verbose get saving pino to /home/awj/.npm/registry.npmjs.org/pino/.cache.json
+37 http 200 https://registry.npmjs.org/husky
+38 verbose headers { date: 'Wed, 11 Oct 2023 17:16:57 GMT',
+38 verbose headers   'content-type': 'application/json',
+38 verbose headers   'transfer-encoding': 'chunked',
+38 verbose headers   connection: 'keep-alive',
+38 verbose headers   'cf-ray': '8148c0f7683740dc-SIN',
+38 verbose headers   'cf-cache-status': 'REVALIDATED',
+38 verbose headers   'access-control-allow-origin': '*',
+38 verbose headers   'cache-control': 'public, max-age=300',
+38 verbose headers   etag: 'W/"5c668f3c8f5bdc87a0513b3a8fccd30e"',
+38 verbose headers   'last-modified': 'Fri, 09 Jun 2023 21:31:57 GMT',
+38 verbose headers   vary: 'accept-encoding, accept',
+38 verbose headers   server: 'cloudflare',
+38 verbose headers   'content-encoding': 'gzip' }
+39 silly get cb [ 200,
+39 silly get   { date: 'Wed, 11 Oct 2023 17:16:57 GMT',
+39 silly get     'content-type': 'application/json',
+39 silly get     'transfer-encoding': 'chunked',
+39 silly get     connection: 'keep-alive',
+39 silly get     'cf-ray': '8148c0f7683740dc-SIN',
+39 silly get     'cf-cache-status': 'REVALIDATED',
+39 silly get     'access-control-allow-origin': '*',
+39 silly get     'cache-control': 'public, max-age=300',
+39 silly get     etag: 'W/"5c668f3c8f5bdc87a0513b3a8fccd30e"',
+39 silly get     'last-modified': 'Fri, 09 Jun 2023 21:31:57 GMT',
+39 silly get     vary: 'accept-encoding, accept',
+39 silly get     server: 'cloudflare',
+39 silly get     'content-encoding': 'gzip' } ]
+40 verbose get saving husky to /home/awj/.npm/registry.npmjs.org/husky/.cache.json
+41 info outdated updating [ { dep:
+41 info outdated      Link {
+41 info outdated        id: 41,
+41 info outdated        path: '/mnt/c/Users/AWJ/Documents/GitHub/ay2324s1-assignment-6-g38/node_modules/pino',
+41 info outdated        realpath: '/mnt/c/Users/AWJ/Documents/GitHub/ay2324s1-assignment-6-g38/node_modules/.pnpm/pino@8.16.0/node_modules/pino',
+41 info outdated        package: [Object],
+41 info outdated        parent: [Object],
+41 info outdated        target: [Object],
+41 info outdated        isLink: true,
+41 info outdated        children: [],
+41 info outdated        error: null,
+41 info outdated        loaded: false,
+41 info outdated        requiredBy: [Array],
+41 info outdated        requires: [],
+41 info outdated        missingDeps: [Object],
+41 info outdated        missingDevDeps: {},
+41 info outdated        userRequired: false,
+41 info outdated        existing: false },
+41 info outdated     depname: 'pino',
+41 info outdated     current: '8.15.6',
+41 info outdated     wanted: '8.16.0',
+41 info outdated     latest: '8.16.0',
+41 info outdated     req: '^8.15.6',
+41 info outdated     what: 'pino@8.16.0' } ]
+42 silly loadCurrentTree Starting
+43 silly install loadCurrentTree
+44 silly install readLocalPackageData
+45 silly fetchPackageMetaData pino@8.16.0
+46 silly fetchNamedPackageData pino
+47 silly mapToRegistry name pino
+48 silly mapToRegistry using default registry
+49 silly mapToRegistry registry https://registry.npmjs.org/
+50 silly mapToRegistry uri https://registry.npmjs.org/pino
+51 verbose get https://registry.npmjs.org/pino not expired, no request
+52 silly install normalizeTree
+53 silly loadCurrentTree Finishing
+54 silly loadIdealTree Starting
+55 silly install loadIdealTree
+56 silly cloneCurrentTree Starting
+57 silly install cloneCurrentTreeToIdealTree
+58 silly cloneCurrentTree Finishing
+59 silly loadShrinkwrap Starting
+60 silly install loadShrinkwrap
+61 silly loadShrinkwrap Finishing
+62 silly loadAllDepsIntoIdealTree Starting
+63 silly install loadAllDepsIntoIdealTree
+64 verbose stack Error: Missing required argument #1
+64 verbose stack     at andLogAndFinish (/usr/share/npm/lib/fetch-package-metadata.js:31:3)
+64 verbose stack     at fetchPackageMetadata (/usr/share/npm/lib/fetch-package-metadata.js:51:22)
+64 verbose stack     at resolveWithNewModule (/usr/share/npm/lib/install/deps.js:456:12)
+64 verbose stack     at /usr/share/npm/lib/install/deps.js:190:5
+64 verbose stack     at /usr/share/npm/node_modules/slide/lib/async-map.js:52:35
+64 verbose stack     at Array.forEach (<anonymous>)
+64 verbose stack     at /usr/share/npm/node_modules/slide/lib/async-map.js:52:11
+64 verbose stack     at Array.forEach (<anonymous>)
+64 verbose stack     at asyncMap (/usr/share/npm/node_modules/slide/lib/async-map.js:51:8)
+64 verbose stack     at exports.loadRequestedDeps (/usr/share/npm/lib/install/deps.js:188:3)
+65 verbose cwd /mnt/c/Users/AWJ/Documents/GitHub/ay2324s1-assignment-6-g38
+66 error Linux 4.4.0-19041-Microsoft
+67 error argv "/usr/bin/node" "/usr/bin/npm" "update"
+68 error node v8.10.0
+69 error npm  v3.5.2
+70 error code EMISSINGARG
+71 error typeerror Error: Missing required argument #1
+71 error typeerror     at andLogAndFinish (/usr/share/npm/lib/fetch-package-metadata.js:31:3)
+71 error typeerror     at fetchPackageMetadata (/usr/share/npm/lib/fetch-package-metadata.js:51:22)
+71 error typeerror     at resolveWithNewModule (/usr/share/npm/lib/install/deps.js:456:12)
+71 error typeerror     at /usr/share/npm/lib/install/deps.js:190:5
+71 error typeerror     at /usr/share/npm/node_modules/slide/lib/async-map.js:52:35
+71 error typeerror     at Array.forEach (<anonymous>)
+71 error typeerror     at /usr/share/npm/node_modules/slide/lib/async-map.js:52:11
+71 error typeerror     at Array.forEach (<anonymous>)
+71 error typeerror     at asyncMap (/usr/share/npm/node_modules/slide/lib/async-map.js:51:8)
+71 error typeerror     at exports.loadRequestedDeps (/usr/share/npm/lib/install/deps.js:188:3)
+72 error typeerror This is an error with npm itself. Please report this error at:
+72 error typeerror     <http://github.com/npm/npm/issues>
+73 verbose exit [ 1, true ]
