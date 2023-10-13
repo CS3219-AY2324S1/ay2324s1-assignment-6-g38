@@ -1,6 +1,13 @@
 # docker-compose.yml
 version: '3.8'
 services:
+  web:
+    build: .
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@localhost:6543/mydb?schema=public
+      - SERVER_PORT=2000
+    ports:
+      - '2000:2000'
   db:
     image: postgres:14.1-alpine
     restart: always
