@@ -24,7 +24,7 @@ export default function defineRoutes(expressApp: express.Application) {
 
   router.post("/bulk", async (req, res, next) => {
     try {
-      const addQuestionResponse = await questionUseCase.addQuestion(req.body);
+      const addQuestionResponse = await questionUseCase.addQuestions(req.body);
       res.json(addQuestionResponse);
     } catch (error) {
       next(error);
