@@ -1,3 +1,5 @@
+import type { Prisma } from "@prisma/client";
+
 import type {
   QuestionFilter,
   QuestionRecord,
@@ -11,6 +13,14 @@ export async function addNewQuestion(
 ): Promise<QuestionRecord> {
   return getPrismaClient().question.create({
     data: newQuestionRecordRequest,
+  });
+}
+
+export async function addNewQuestions(
+  newQuestionRecordRequests: QuestionRequest[],
+): Promise<Prisma.BatchPayload> {
+  return getPrismaClient().question.createMany({
+    data: newQuestionRecordRequests,
   });
 }
 
