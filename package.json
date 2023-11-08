@@ -19,7 +19,7 @@
     "stop:prod": "docker-compose -f docker-compose.prod.yml down",
     "logs:dev": "docker-compose -f docker-compose.dev.yml logs -f",
     "logs:prod": "docker-compose -f docker-compose.prod.yml logs -f",
-    "cleanup:dev": "docker-compose -f docker-compose.dev.yml down && docker volume prune -f",
+    "cleanup:dev": "docker-compose -f docker-compose.dev.yml down -v && docker volume prune -f",
     "cleanup:prod": "docker-compose -f docker-compose.prod.yml down && docker volume prune -f",
     "restart:dev": "npm run stop:dev && npm run start:dev",
     "restart:prod": "npm run stop:prod && npm run start:prod"
