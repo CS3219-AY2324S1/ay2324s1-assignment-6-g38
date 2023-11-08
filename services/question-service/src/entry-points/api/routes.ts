@@ -2,6 +2,7 @@ import express from "express";
 
 import type { Category, Difficulty } from "@prisma/client";
 
+import { assertIsAdmin } from "../../commons/auth/authenticator";
 import * as questionUseCase from "../../domain/question-use-case";
 
 import {
@@ -15,6 +16,7 @@ export default function defineRoutes(expressApp: express.Application) {
 
   router.post("/", validateAddQuestionInput, async (req, res, next) => {
     try {
+      await assertIsAdmin(req);
       const addQuestionResponse = await questionUseCase.addQuestion(req.body);
       res.json(addQuestionResponse);
     } catch (error) {
@@ -63,6 +65,7 @@ export default function defineRoutes(expressApp: express.Application) {
 
   router.patch("/:id", validateUpdateQuestionInput, async (req, res, next) => {
     try {
+      await assertIsAdmin(req);
       const response = await questionUseCase.updateQuestion(
         req.params.id,
         req.body,
@@ -75,6 +78,7 @@ export default function defineRoutes(expressApp: express.Application) {
 
   router.delete("/:id", async (req, res, next) => {
     try {
+      await assertIsAdmin(req);
       await questionUseCase.deleteQuestion(req.params.id);
       res.status(200).end();
     } catch (error) {
