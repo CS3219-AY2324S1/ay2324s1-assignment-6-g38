@@ -10,6 +10,7 @@ services:
       - ./services/question-service:/app
     depends_on:
       - mongodb
+      - test-question-db
     environment:
       - DATABASE_URL=mongodb://mongodb-user:mongodb-pass@mongodb:27017/question-db?authSource=admin
       - PORT=5001
@@ -29,6 +30,20 @@ services:
       - mongodb_master_data:/data/db
     ports:
       - '27017:27017'
+
+  test-question-db:
+    restart: always
+    build: ./services/question-service/mongodb-rs
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongodb-user
+      MONGO_INITDB_ROOT_PASSWORD: mongodb-pass
+      MONGO_INITDB_DATABASE: test-question-db
+      MONGO_REPLICA_HOST: test-question-db
+      MONGO_REPLICA_PORT: '27016'
+    volumes:
+      - mongodb_master_data:/data/test-db
+    ports:
+      - '27016:27017'
 
   user-service:
     restart: on-failure

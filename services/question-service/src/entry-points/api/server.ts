@@ -39,7 +39,7 @@ async function openConnection(
   });
 }
 
-async function startWebServer(): Promise<AddressInfo> {
+export function createWebApplication() {
   const expressApp = express();
   expressApp.use(httpLogger);
   expressApp.use(cors());
@@ -47,7 +47,10 @@ async function startWebServer(): Promise<AddressInfo> {
   expressApp.use(express.json());
   defineRoutes(expressApp);
   expressApp.use(errorHandler);
-  const APIAddress = await openConnection(expressApp);
+  return expressApp;
+}
+async function startWebServer(): Promise<AddressInfo> {
+  const APIAddress = await openConnection(createWebApplication());
   return APIAddress;
 }
 
