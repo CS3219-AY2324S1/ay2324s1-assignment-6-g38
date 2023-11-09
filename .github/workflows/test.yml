@@ -60,8 +60,6 @@ jobs:
 
     services:
       mongodb:
-        restart: always
-        build: ./services/${{ matrix.package }}/mongodb-rs
         environment:
           MONGO_INITDB_ROOT_USERNAME: mongodb-user
           MONGO_INITDB_ROOT_PASSWORD: mongodb-pass
