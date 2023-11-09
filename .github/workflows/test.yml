@@ -1,9 +1,7 @@
 name: Test
 
 on:
-  pull_request:
-    branches: [master]
-  workflow_dispatch:
+  push:
 
 jobs:
   test-services:
@@ -30,6 +28,56 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://test:test@localhost:5432/testdb?schema=public
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+      
+      - name: Cache Node.js modules
+        uses: actions/cache@v2
+        with:
+          path: services/${{ matrix.package }}/node_modules
+          key: ${{ runner.OS }}-node-${{ matrix.package }}-${{ hashFiles('services/${{ matrix.package }}/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-node-${{ matrix.package }}-
+            ${{ runner.OS }}-node-
+      
+      - name: Install dependencies for ${{ matrix.package }}
+        run: cd services/${{ matrix.package }} && npm install
+
+      - name: Run Test script for ${{ matrix.package }}
+        run: cd services/${{ matrix.package }} && npm run test
+
+  test-mongo-services:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: ['question-service']
+
+    services:
+      mongodb:
+        restart: always
+        build: ./services/${{ matrix.package }}/mongodb-rs
+        environment:
+          MONGO_INITDB_ROOT_USERNAME: mongodb-user
+          MONGO_INITDB_ROOT_PASSWORD: mongodb-pass
+          MONGO_INITDB_DATABASE: mongodb
+          MONGO_REPLICA_HOST: mongodb
+          MONGO_REPLICA_PORT: '27017'
+        ports:
+          - '27016:27017'
+        options: >-
+          --health-cmd mongo
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: mongodb://mongodb-user:mongodb-pass@localhost:27016/mongodb?authSource=admin&directConnection=true
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
