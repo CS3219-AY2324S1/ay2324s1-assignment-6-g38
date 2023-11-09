@@ -42,7 +42,6 @@ services:
       MONGO_REPLICA_PORT: '27017'
     ports:
       - '27016:27017'
-    command: --replSet rs0 --bind_ip_all
 
   user-service:
     restart: on-failure

@@ -1,6 +1,9 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
+import assert from "assert";
 import { getToken } from "next-auth/jwt";
 import request from "supertest";
+
+import { Category, Difficulty } from "@prisma/client";
 
 import { loadEnvConfig } from "../commons/utils/env-config";
 import { getPrismaClient } from "../data-access/prisma-client-factory";
@@ -22,297 +25,342 @@ beforeEach(async () => {
   await resetDb();
   jest.clearAllMocks();
   (getToken as jest.Mock).mockResolvedValue(null);
+}, 40000);
+
+const createQuestionInputFullOne = {
+  title: "question-title",
+  categories: [Category.Algorithms],
+  description: "question-description",
+  difficulty: Difficulty.Easy,
+  link: "http://www.question-url.com",
+};
+
+const createQuestionInputFullTwo = {
+  title: "question-title-two",
+  categories: [Category.Arrays],
+  description: "question-description-two",
+  difficulty: Difficulty.Medium,
+  link: "http://www.question-url-two.com",
+};
+
+const adminJwt = { role: "ADMIN" };
+const userJwt = { role: "USER" };
+
+describe("POST /question", () => {
+  test("when valid create question input are provided with valid permissions, return status 200 OK", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(adminJwt);
+    // act
+    const res = await mockApp
+      .post("/question")
+      .send(createQuestionInputFullOne);
+    // expect
+    const question = await prisma.question.findUnique({
+      where: { title: createQuestionInputFullOne.title },
+    });
+    expect(res.status).toBe(200);
+    expect(question).not.toBe(null);
+  });
+
+  test("when invalid create question input are provided with valid permissions, return status 400", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(adminJwt);
+    // act
+    const res = await mockApp
+      .post("/question")
+      .send({ ...createQuestionInputFullOne, title: undefined });
+    // expect
+    const questions = await prisma.question.findMany();
+    expect(res.status).toBe(400);
+    expect(questions.length).toBe(0);
+  });
+
+  test("when a existing question title is provided with valid permissions, return status 409", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(adminJwt);
+    // act
+    await mockApp.post("/question").send(createQuestionInputFullOne);
+    const res = await mockApp.post("/question").send({
+      ...createQuestionInputFullTwo,
+      title: createQuestionInputFullOne.title,
+    });
+    // expect
+    const questions = await prisma.question.findMany();
+    expect(res.status).toBe(409);
+    expect(questions.length).toBe(1);
+  });
+
+  test("when valid create question input are provided but no token, return status 401", async () => {
+    // act
+    const res = await mockApp
+      .post("/question")
+      .send(createQuestionInputFullOne);
+    // expect
+    expect(res.status).toBe(401);
+  });
+
+  test("when valid create question input are provided but no valid permission, return status 401", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(userJwt);
+    // act
+    const res = await mockApp
+      .post("/question")
+      .send(createQuestionInputFullOne);
+    // expect
+    expect(res.status).toBe(401);
+  });
 });
 
-afterEach(async () => {
-  jest.clearAllMocks();
+describe("GET /question", () => {
+  test("when empty get request is called, return all questions with status 200 OK", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(adminJwt);
+    await prisma.question.create({ data: createQuestionInputFullOne });
+    await prisma.question.create({ data: createQuestionInputFullTwo });
+    const questions = await prisma.question.findMany();
+    // act
+    const res = await mockApp.get("/question");
+    // expect
+    expect(res.status).toBe(200);
+    expect(res.body).toStrictEqual(questions);
+  });
+  test("when get request with all filters, return matching question(s) with status 200 OK", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(adminJwt);
+    await prisma.question.create({ data: createQuestionInputFullOne });
+    await prisma.question.create({ data: createQuestionInputFullTwo });
+    const questions = await prisma.question.findMany({
+      where: { title: createQuestionInputFullOne.title },
+    });
+    expect(questions.length).toBe(1);
+    const params = new URLSearchParams({
+      id: questions[0].id,
+      ...createQuestionInputFullOne,
+    });
+    // act
+    const res = await mockApp.get(`/question?${params.toString()}`);
+    // expect
+    expect(res.status).toBe(200);
+    expect(res.body).toStrictEqual(questions);
+  });
+  test("when get request with getOne is true, return only one of the results with status 200 OK", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(adminJwt);
+    await prisma.question.create({ data: createQuestionInputFullOne });
+    await prisma.question.create({ data: createQuestionInputFullTwo });
+    const questions = await prisma.question.findMany();
+    expect(questions.length).toBe(2);
+    const params = new URLSearchParams({
+      getOne: "true",
+    });
+    // act
+    const res = await mockApp.get(`/question?${params.toString()}`);
+    // expect
+    expect(res.status).toBe(200);
+    expect(res.body.length).toBe(undefined);
+  });
+  test("when get request no relevant questions with status 200 OK", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(adminJwt);
+    const questions = await prisma.question.findMany();
+    expect(questions.length).toBe(0);
+    // act
+    const res = await mockApp.get(`/question?`);
+    // expect
+    expect(res.status).toBe(200);
+    expect(res.body).toStrictEqual([]);
+  });
+  test("if provided invalid filter, return status 500", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(adminJwt);
+    await prisma.question.create({ data: createQuestionInputFullOne });
+    const params = new URLSearchParams({
+      difficulty: "invalid-difficulty",
+    });
+    // act
+    const res = await mockApp.get(`/question?${params.toString()}`);
+    // expect
+    expect(res.status).toBe(500);
+  });
+  test("if exists question that matches input id, return status 200 OK", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(adminJwt);
+    await prisma.question.create({ data: createQuestionInputFullOne });
+    await prisma.question.create({ data: createQuestionInputFullTwo });
+    const question = await prisma.question.findFirst({
+      where: { title: createQuestionInputFullOne.title },
+    });
+    expect(question).not.toBe(null);
+    // act
+    const res = await mockApp.get(`/question/${question!.id}`);
+    // expect
+    expect(res.status).toBe(200);
+    expect(res.body).toStrictEqual(question);
+  });
+  test("if no question that matches input id, return status 404", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(adminJwt);
+    // act
+    const res = await mockApp.get(`/question/mock-id`);
+    // expect
+    expect(res.status).toBe(404);
+  });
 });
 
-// const createQuestionInputFull = {
-//   title: "question-title",
-//   categories: [Category.Algorithms],
-//   description: "question-description",
-//   difficulty: Difficulty.Easy,
-//   link: "http://www.question-url.com",
-// };
-// const adminJwt = { role: "ADMIN" };
-// const userJwt = { role: "USER" };
-
-test("should run", () => {
-  expect(true).toBe(true);
+describe("PATCH /question", () => {
+  test("when valid patch inputs are provided with valid permissions, return 200 OK", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(adminJwt);
+    const newTitle = "new-title";
+    await prisma.question.create({ data: createQuestionInputFullOne });
+    // assert before
+    const questionsBefore = await prisma.question.findMany();
+    assert(questionsBefore.length === 1);
+    assert(questionsBefore[0].title !== newTitle);
+    // act
+    const res = await mockApp.patch(`/question/${questionsBefore[0].id}`).send({
+      title: newTitle,
+    });
+    // expect
+    expect(res.status).toBe(200);
+    const questionsAfter = await prisma.question.findMany();
+    assert(questionsAfter.length === 1);
+    expect(questionsAfter[0].title === newTitle);
+  });
+  test("when invalid patch inputs are provided with valid permissions, return 400", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(adminJwt);
+    await prisma.question.create({ data: createQuestionInputFullOne });
+    // assert before
+    const questionsBefore = await prisma.question.findMany();
+    assert(questionsBefore.length === 1);
+    // act
+    const res = await mockApp.patch(`/question/${questionsBefore[0].id}`).send({
+      title: 123,
+    });
+    // expect
+    expect(res.status).toBe(400);
+    const questionsAfter = await prisma.question.findMany();
+    assert(questionsAfter.length === 1);
+    expect(questionsAfter[0].title === questionsBefore[0].title);
+  });
+  test("when non-existing id is provided with valid permissions, return 404", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(adminJwt);
+    const newTitle = "new-title";
+    await prisma.question.create({ data: createQuestionInputFullOne });
+    // assert before
+    const questionsBefore = await prisma.question.findMany();
+    assert(questionsBefore.length === 1);
+    // act
+    const res = await mockApp
+      .patch(`/question/${questionsBefore[0].id}-invalid`)
+      .send({
+        title: newTitle,
+      });
+    // expect
+    expect(res.status).toBe(404);
+    const questionsAfter = await prisma.question.findMany();
+    assert(questionsAfter.length === 1);
+    expect(questionsAfter[0].title === questionsBefore[0].title);
+  });
+  test("when valid patch inputs are provided with no auth token, return 401", async () => {
+    // setup
+    const newTitle = "new-title";
+    await prisma.question.create({ data: createQuestionInputFullOne });
+    // assert before
+    const questionsBefore = await prisma.question.findMany();
+    assert(questionsBefore.length === 1);
+    // act
+    const res = await mockApp.patch(`/question/${questionsBefore[0].id}`).send({
+      title: newTitle,
+    });
+    // expect
+    expect(res.status).toBe(401);
+    const questionsAfter = await prisma.question.findMany();
+    assert(questionsAfter.length === 1);
+    expect(questionsAfter[0].title === questionsBefore[0].title);
+  });
+  test("when valid patch inputs are provided with no valid permissions, return 401", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(userJwt);
+    const newTitle = "new-title";
+    await prisma.question.create({ data: createQuestionInputFullOne });
+    // assert before
+    const questionsBefore = await prisma.question.findMany();
+    assert(questionsBefore.length === 1);
+    // act
+    const res = await mockApp.patch(`/question/${questionsBefore[0].id}`).send({
+      title: newTitle,
+    });
+    // expect
+    expect(res.status).toBe(401);
+    const questionsAfter = await prisma.question.findMany();
+    assert(questionsAfter.length === 1);
+    expect(questionsAfter[0].title === questionsBefore[0].title);
+  });
 });
-// describe("POST /question", () => {
-//   test("when valid title, categories, description, difficulty and link are provided with valid permissions, return status 200 OK", async () => {
-//     (getToken as jest.Mock).mockResolvedValue(adminJwt);
-//     const res = await mockApp.post("/question").send(createQuestionInputFull);
-//     const question = await prisma.question.findUnique({
-//       where: { title: createQuestionInputFull.title },
-//     });
-//     expect(res.status).toBe(200);
-//     expect(question).not.toBe(null);
-//   });
 
-//   test("when valid name and email are provided but no valid permission, return status 401", async () => {
-//     (getToken as jest.Mock).mockResolvedValue(adminJwt);
-//     const res = await mockApp.post("/question").send(createQuestionInputFull);
-//     expect(res.status).toBe(401);
-//   });
-
-//   test("when only email and valid permission is provided, return status 400 Bad Request", async () => {
-//     // act
-//     (getToken as jest.Mock).mockResolvedValue(userJwt);
-//     const res = await mockApp.post("/question").send(invalidUserInputOnlyEmail);
-//     const user = await prisma.question.findUnique({
-//       where: { ...invalidUserInputOnlyEmail },
-//     });
-//     // assert
-//     expect(res.status).toBe(400);
-//     expect(user).toBe(null);
-//   });
-
-//   test("when only name and valid permission is provided, return status 400 Bad Request", async () => {
-//     // act
-//     (getToken as jest.Mock).mockResolvedValue(userJwt);
-//     const res = await mockApp.post("/question").send(invalidUserInputOnlyName);
-//     const user = await prisma.question.findMany({
-//       where: { ...invalidUserInputOnlyName },
-//     });
-//     // assert
-//     expect(res.status).toBe(400);
-//     expect(user).toEqual([]);
-//   });
-
-//   test("when invalid email is provided, return status 400 Bad Request", async () => {
-//     // act
-//     (getToken as jest.Mock).mockResolvedValue(userJwt);
-//     const res = await mockApp.post("/question").send(invalidUserInputOnlyName);
-//     const user = await prisma.question.findMany({
-//       where: { ...createUserInput, email: invalidEmail },
-//     });
-//     // assert
-//     expect(res.status).toBe(400);
-//     expect(user).toEqual([]);
-//   });
-
-//   test("when invalid url is provided, return status 400 Bad Request", async () => {
-//     // act
-//     (getToken as jest.Mock).mockResolvedValue(userJwt);
-//     const res = await mockApp.post("/question").send(invalidUserInputOnlyName);
-//     const user = await prisma.question.findMany({
-//       where: { ...createUserInputFull, url: "help" },
-//     });
-//     // assert
-//     expect(res.status).toBe(400);
-//     expect(user).toEqual([]);
-//   });
-
-//   test("when there is already a user with the same email, return status 409 Conflict", async () => {
-//     // arrange
-//     (getToken as jest.Mock).mockResolvedValue(userJwt);
-//     await mockApp.post("/question").send(createUserInput);
-//     // act
-//     const res = await mockApp.post("/question").send(createUserInput);
-//     const users = await prisma.question.findMany({
-//       where: { ...createUserInput },
-//     });
-//     // assert
-//     expect(res.status).toBe(409);
-//     expect(users.length).toBe(1);
-//   });
-// });
-
-// describe("GET /question", () => {
-//   test("when calling the api, return status 200 OK", async () => {
-//     // arrange
-//     await prisma.question.create({ data: createUserInput });
-//     const user = await prisma.question.findMany();
-//     // action
-//     const res = await mockApp.get("/question");
-//     // assert
-//     expect(res.status).toBe(200);
-//     expect(res.body).toEqual(user);
-//   });
-
-//   test("when adding email filter, return status 200 OK", async () => {
-//     const findEmail = "weijun@gmail.com";
-//     // arrange
-//     await prisma.question.createMany({
-//       data: [createUserInput, createUserInput1, createUserInput2],
-//     });
-//     const users = await prisma.question.findMany({
-//       where: { email: findEmail },
-//     });
-//     // action
-//     const res = await mockApp.get(`/question?email=${findEmail}`);
-//     // assert
-//     expect(res.status).toBe(200);
-//     expect(res.body).toEqual(users);
-//   });
-// });
-
-// describe("PUT /question", () => {
-//   test("When editing user with valid permission, return status 200 OK", async () => {
-//     // arrange
-//     await prisma.question.create({ data: createUserInput });
-//     const beforeModified = await prisma.question.findUnique({
-//       where: createUserInput,
-//     });
-//     (getToken as jest.Mock).mockResolvedValue({
-//       userId: beforeModified!.id,
-//       ...adminJwt,
-//     });
-//     // action
-
-//     const res = await mockApp
-//       .put(`/question/${beforeModified!.id}`)
-//       .send({ ...beforeModified, name: "new name" });
-
-//     const afterModified = await prisma.question.findUnique({
-//       where: {
-//         id: beforeModified!.id,
-//       },
-//     });
-//     // assert
-//     expect(res.status).toBe(200);
-//     expect(afterModified?.name).toBe("new name");
-//   });
-
-//   test("When editing user with valid permission, return status 401 UNAUTHORIZED", async () => {
-//     // arrange
-//     await prisma.question.create({ data: createUserInput });
-//     const beforeModified = await prisma.question.findUnique({
-//       where: createUserInput,
-//     });
-//     (getToken as jest.Mock).mockResolvedValue({
-//       userId: beforeModified!.id + 1,
-//       ...questionJwt,
-//     });
-//     // action
-
-//     const res = await mockApp
-//       .put(`/question/${beforeModified!.id}`)
-//       .send({ ...beforeModified, name: "new name" });
-
-//     const afterModified = await prisma.question.findUnique({
-//       where: {
-//         id: beforeModified!.id,
-//       },
-//     });
-//     // assert
-//     expect(res.status).toBe(401);
-//     expect(afterModified?.name).toBe(createUserInput.name);
-//   });
-
-//   test("When editing non-existant user, return status 404 NOT FOUND", async () => {
-//     // action
-//     (getToken as jest.Mock).mockResolvedValue({
-//       ...adminJwt,
-//     });
-//     const res = await mockApp
-//       .put(`/question/${0}`)
-//       .send({ id: 0, name: "new name" });
-
-//     // assert
-//     expect(res.status).toBe(404);
-//   });
-// });
-
-// describe("GET /question/id", () => {
-//   test("when retrieving existing user based on their id, return 200 OK", async () => {
-//     // arrange
-//     const user = await prisma.question.create({ data: createUserInput });
-//     const { id } = user;
-
-//     // action
-//     const res = await mockApp.get(`/question/${id}`);
-
-//     // assert
-//     expect(res.status).toBe(200);
-//     expect(res.body).toEqual(user);
-//   });
-
-//   test("when retrieving non-existing user based on their id, return 200 OK", async () => {
-//     // action
-//     const res = await mockApp.get(`/question/${0}`);
-//     // assert
-//     expect(res.status).toBe(404);
-//   });
-// });
-
-// describe("DELETE /question/:id", () => {
-//   test("When user delete his account, return 200 OK", async () => {
-//     // arrange
-//     const user = await prisma.question.create({ data: createUserInput });
-//     const { id } = user;
-//     (getToken as jest.Mock).mockResolvedValue({
-//       userId: id,
-//       ...questionJwt,
-//     });
-
-//     // action
-//     const res = await mockApp.delete(`/question/${id}`);
-//     const checkUser = await prisma.question.findUnique({
-//       where: {
-//         id,
-//       },
-//     });
-//     // assert
-//     expect(res.status).toBe(200);
-//     expect(checkUser).toBe(null);
-//   });
-
-//   test("When someone with incorrect permission try to delete his account, return 401 Unauthorized", async () => {
-//     // arrange
-//     const user = await prisma.question.create({ data: createUserInput });
-//     const { id } = user;
-//     (getToken as jest.Mock).mockResolvedValue({
-//       userId: id + 1,
-//       ...questionJwt,
-//     });
-
-//     // action
-//     const res = await mockApp.delete(`/question/${id}`);
-//     const checkUser = await prisma.question.findUnique({
-//       where: {
-//         id,
-//       },
-//     });
-//     // assert
-//     expect(res.status).toBe(401);
-//     expect(checkUser).toBe(checkUser);
-//   });
-
-//   test("When admin deletes a account, return 200 OK", async () => {
-//     // arrange
-//     const user = await prisma.question.create({ data: createUserInput });
-//     const { id } = user;
-//     (getToken as jest.Mock).mockResolvedValue({
-//       userId: id,
-//       ...adminJwt,
-//     });
-
-//     // action
-//     const res = await mockApp.delete(`/question/${id}`);
-//     const checkUser = await prisma.question.findUnique({
-//       where: {
-//         id,
-//       },
-//     });
-//     // assert
-//     expect(res.status).toBe(200);
-//     expect(checkUser).toBe(null);
-//   });
-
-//   test("When admin deletes a user that does not exist, return 404 Not Found", async () => {
-//     // action
-//     (getToken as jest.Mock).mockResolvedValue({
-//       userId: 0,
-//       ...adminJwt,
-//     });
-//     const res = await mockApp.delete(`/question/${0}`);
-//     // assert
-//     expect(res.status).toBe(404);
-//   });
-// });
-
-// Test validation
+describe("DELETE /question", () => {
+  test("when valid delete id is provided with valid permissions, return 200 OK", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(adminJwt);
+    await prisma.question.create({ data: createQuestionInputFullOne });
+    // assert before
+    const questionsBefore = await prisma.question.findMany();
+    assert(questionsBefore.length === 1);
+    // act
+    const res = await mockApp.delete(`/question/${questionsBefore[0].id}`);
+    // expect
+    expect(res.status).toBe(200);
+    const questionsAfter = await prisma.question.findMany();
+    expect(questionsAfter.length).toBe(0);
+  });
+  test("when invalid delete id is provided with valid permissions, return 404", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(adminJwt);
+    const mockId = "mock-question-id";
+    await prisma.question.create({ data: createQuestionInputFullOne });
+    // assert before
+    const questionsBefore = await prisma.question.findMany();
+    assert(questionsBefore.length === 1);
+    const matchingQuestions = await prisma.question.findMany({
+      where: { id: mockId },
+    });
+    assert(matchingQuestions.length === 0);
+    // act
+    const res = await mockApp.delete(`/question/${mockId}`);
+    // expect
+    expect(res.status).toBe(404);
+    const questionsAfter = await prisma.question.findMany();
+    expect(questionsAfter.length).toBe(questionsBefore.length);
+  });
+  test("when valid patch inputs are provided with no auth token, return 401", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(userJwt);
+    await prisma.question.create({ data: createQuestionInputFullOne });
+    // assert before
+    const questionsBefore = await prisma.question.findMany();
+    assert(questionsBefore.length === 1);
+    // act
+    const res = await mockApp.delete(`/question/${questionsBefore[0].id}`);
+    // expect
+    expect(res.status).toBe(401);
+    const questionsAfter = await prisma.question.findMany();
+    expect(questionsAfter.length).toBe(questionsBefore.length);
+  });
+  test("when valid patch inputs are provided with no valid permissions, return 401", async () => {
+    // setup
+    (getToken as jest.Mock).mockResolvedValue(userJwt);
+    await prisma.question.create({ data: createQuestionInputFullOne });
+    // assert before
+    const questionsBefore = await prisma.question.findMany();
+    assert(questionsBefore.length === 1);
+    // act
+    const res = await mockApp.delete(`/question/${questionsBefore[0].id}`);
+    // expect
+    expect(res.status).toBe(401);
+    const questionsAfter = await prisma.question.findMany();
+    expect(questionsAfter.length).toBe(questionsBefore.length);
+  });
+});

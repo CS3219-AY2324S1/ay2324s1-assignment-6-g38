@@ -21,21 +21,21 @@ function isAdmin(token: JWT) {
 }
 
 // assertIsAuthenticated
-export async function assertIsAuthenticated(req: Request) {
-  await extractToken(req);
-}
+// export async function assertIsAuthenticated(req: Request) {
+//   await extractToken(req);
+// }
 
-function isSelfOrAdmin(token: JWT, id: number) {
-  return isAdmin(token) || id === token.userId;
-}
+// function isSelfOrAdmin(token: JWT, id: number) {
+//   return isAdmin(token) || id === token.userId;
+// }
 
 // assertIsSelf
-export async function assertIsSelfOrAdmin(req: Request, userId: number) {
-  const token = await extractToken(req);
-  if (!isSelfOrAdmin(token, userId)) {
-    throw new HttpError("You do not have the correct permission", 401);
-  }
-}
+// export async function assertIsSelfOrAdmin(req: Request, userId: number) {
+//   const token = await extractToken(req);
+//   if (!isSelfOrAdmin(token, userId)) {
+//     throw new HttpError("You do not have the correct permission", 401);
+//   }
+// }
 
 // assertIsAdmin
 export async function assertIsAdmin(req: Request) {

@@ -9,7 +9,6 @@ export function errorHandler(
   next: NextFunction,
 ) {
   // Handle the error here and send an appropriate response
-  console.error(error); // Log the error for debugging purposes
   // Customize the response based on the error
   res.status(error.statusCode).json({ error: error.message });
 }

@@ -1,7 +1,7 @@
 import { formatISO } from "date-fns";
 
 import type { QuestionFilter, QuestionRequest } from "../../types";
-import HttpError from "../commons/error/HttpError";
+import HttpError from "../commons/error/index";
 import * as questionRepo from "../data-access/question-repository";
 
 import { AddQuestionSchema, UpdateQuestionSchema } from "./question-schema"; // Import your schemas here
