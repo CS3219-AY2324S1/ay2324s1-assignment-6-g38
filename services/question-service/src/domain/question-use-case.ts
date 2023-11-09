@@ -1,7 +1,7 @@
 import { formatISO } from "date-fns";
 
 import type { QuestionFilter, QuestionRequest } from "../../types";
-import DomainError from "../commons/error/DomainError";
+import HttpError from "../commons/error/HttpError";
 import * as questionRepo from "../data-access/question-repository";
 
 import { AddQuestionSchema, UpdateQuestionSchema } from "./question-schema"; // Import your schemas here
@@ -64,7 +64,7 @@ export async function getDailyQuestion() {
   }
   const questions = await questionRepo.getQuestions({});
   if (questions === null || questions!.length === 0) {
-    throw new DomainError("No questions in database", 404);
+    throw new HttpError("No questions in database", 404);
   }
   const questionIndex = dateToHash(new Date()) % questions.length;
   await questionRepo.addQuestionOfTheDay(today, questions[questionIndex].id);
