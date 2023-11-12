@@ -45,7 +45,6 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 
   const handleButtonClick = () => {
     setIsDeletePending(true);
-    console.log("[QuestionCard] Deleting ID: ", id);
     deleteQuestion(id);
   };
 

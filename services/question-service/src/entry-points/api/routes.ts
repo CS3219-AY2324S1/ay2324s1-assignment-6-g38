@@ -2,7 +2,10 @@ import express from "express";
 
 import type { Difficulty } from "@prisma/client";
 
-import { assertIsAdmin } from "../../commons/auth/authenticator";
+import {
+  assertIsAdmin,
+  assertIsAuthenticated,
+} from "../../commons/auth/authenticator";
 import * as questionUseCase from "../../domain/question-use-case";
 
 import {
@@ -26,6 +29,7 @@ export default function defineRoutes(expressApp: express.Application) {
 
   router.get("/", validateGetQuestionRequest, async (req, res, next) => {
     try {
+      await assertIsAuthenticated(req);
       const response = await questionUseCase.getQuestions({
         id: req.query.id as string,
         title: req.query.title as string,
@@ -42,17 +46,9 @@ export default function defineRoutes(expressApp: express.Application) {
     }
   });
 
-  router.get("/QOTD", async (req, res, next) => {
-    try {
-      const dailyQuestion = await questionUseCase.getDailyQuestion();
-      res.status(200).json(dailyQuestion);
-    } catch (error) {
-      next(error);
-    }
-  });
-
   router.get("/:id", async (req, res, next) => {
     try {
+      await assertIsAuthenticated(req);
       const response = await questionUseCase.getQuestionById(req.params.id);
       res.status(200).json(response);
     } catch (error) {

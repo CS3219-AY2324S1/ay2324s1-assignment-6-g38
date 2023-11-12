@@ -30,7 +30,6 @@ npm run install:services
     ```
    NEXT_PUBLIC_SERVICE_USER_URL=localhost:2001
    NEXT_PUBLIC_SERVICE_QUESTION_URL=localhost:5001
-   NEXT_PUBLIC_SERVICE_HISTORY_URL=localhost:1001
    NEXT_PUBLIC_GITHUB_ClIENT_ID=/** fill this in */
    NEXT_PUBLIC_GITHUB_CLIENT_SECRET=/** fill this in */
    NEXTAUTH_URL=http://localhost:3000

@@ -67,20 +67,3 @@ export async function deleteQuestion(id: string): Promise<QuestionRecord> {
     },
   });
 }
-
-export async function getQuestionOfTheDay(date: Date) {
-  return getPrismaClient().questionOfTheDay.findUnique({
-    where: {
-      date,
-    },
-  });
-}
-
-export async function addQuestionOfTheDay(date: Date, questionId: string) {
-  return getPrismaClient().questionOfTheDay.create({
-    data: {
-      questionId,
-      date,
-    },
-  });
-}

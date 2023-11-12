@@ -15,8 +15,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { persistor } from "@/app/store";
-
 import { selectAuthData, signOut } from "@/features/auth";
 
 const UserDropDownMenu = () => {
@@ -26,7 +24,6 @@ const UserDropDownMenu = () => {
   const { data: session } = useSession();
 
   const handleSignOut = () => {
-    persistor.purge();
     dispatch(signOut());
     router.push("/");
   };
@@ -42,6 +39,14 @@ const UserDropDownMenu = () => {
       <DropdownMenuContent className="mr-4">
         <DropdownMenuLabel>{session?.user?.name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {auth.isLoggedIn && auth.currentUser === null && (
+          <DropdownMenuItem asChild className="cursor-pointer">
+            <Link href="/onboarding" className="flex items-center gap-2">
+              <UserSquare2 size={15} />
+              Onboarding
+            </Link>
+          </DropdownMenuItem>
+        )}
         {auth.currentUser !== null && (
           <>
             <DropdownMenuItem asChild className="cursor-pointer">
@@ -57,12 +62,6 @@ const UserDropDownMenu = () => {
               <Link href="/questions" className="flex items-center gap-2">
                 <Archive size={15} />
                 Questions
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild className="cursor-pointer">
-              <Link href="/collab" className="flex items-center gap-2">
-                <Archive size={15} />
-                Collab
               </Link>
             </DropdownMenuItem>
           </>
