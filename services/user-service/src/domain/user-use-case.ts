@@ -1,5 +1,3 @@
-import type { Role } from "@prisma/client";
-
 import type { UpdateUser, UserFilter, UserWihoutId } from "../../types";
 import * as userRepository from "../data-access/user-repository";
 
@@ -25,14 +23,6 @@ export async function addUser(newUser: UserWihoutId) {
   // Validate newUser against the AddUserSchema
   await assertUserNotExistsByMail(newUser.email);
   const validatedResult = UserRecordWithoutIdSchema.parse(newUser);
-  const count = await userRepository.countUsers();
-  if (count === 0) {
-    const response = await userRepository.addUser({
-      ...newUser,
-      role: "ADMIN",
-    });
-    return response;
-  }
   const response = await userRepository.addUser(validatedResult);
   return response;
 }
@@ -67,11 +57,6 @@ export async function updateUser(
   await assertUserExistsById(userId);
   const validatedData = UpdateUserSchema.parse(updateUserRequest);
   return userRepository.updateUser(userId, validatedData);
-}
-
-export async function updateUserRole(userId: number, role: Role) {
-  await assertUserExistsById(userId);
-  return userRepository.updateUserRole(userId, role);
 }
 
 // Check if user is registered

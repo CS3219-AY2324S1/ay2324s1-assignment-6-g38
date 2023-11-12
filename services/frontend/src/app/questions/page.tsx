@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import React from "react";
 import type * as z from "zod";
 
-import { selectAuthData } from "@/features/auth";
 import type { QuestionWithoutIdType } from "@/features/questions";
 import { QuestionCard, QuestionForm } from "@/features/questions";
 import type { Question } from "@/features/questions/types/question.schema";
@@ -18,8 +16,6 @@ import {
 import { useApiNotifications } from "@/hooks/useApiNotifications";
 
 const page = () => {
-  const auth = useSelector(selectAuthData);
-  const [wait, setWait] = useState<boolean>(true);
   const [
     addQuestion,
     { isSuccess: isAddSuccess, isLoading: isAddLoading, isError: isAddError },
@@ -31,7 +27,7 @@ const page = () => {
   ] = useDeleteQuestionMutation();
 
   const { data: questions = [], isError: isGetQuestionsError } =
-    useGetQuestionsQuery(undefined, { skip: wait });
+    useGetQuestionsQuery();
 
   useApiNotifications({
     isSuccess: isAddSuccess,
@@ -58,10 +54,6 @@ const page = () => {
   const handleAddQuestion = (newQuestion: z.infer<typeof Question>) => {
     addQuestion(newQuestion as QuestionWithoutIdType);
   };
-
-  useEffect(() => {
-    if (auth.sessionToken) setWait(false);
-  }, [auth.sessionToken]);
 
   return (
     <div className="flex justify-center">

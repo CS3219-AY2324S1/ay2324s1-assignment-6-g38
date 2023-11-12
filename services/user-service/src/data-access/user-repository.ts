@@ -1,4 +1,4 @@
-import type { Prisma, Role } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
 import type { UpdateUser, User, UserFilter } from "../../types";
 
@@ -60,17 +60,6 @@ export async function updateUser(
   return resultUser;
 }
 
-export async function updateUserRole(id: number, role: Role) {
-  const updatedUser = await getPrismaClient().user.update({
-    where: {
-      id,
-    },
-    data: { role },
-  });
-
-  return updatedUser;
-}
-
 export async function deleteUser(userIdToDelete: number): Promise<User> {
   const deleteResult = await getPrismaClient().user.delete({
     where: {
@@ -78,15 +67,6 @@ export async function deleteUser(userIdToDelete: number): Promise<User> {
     },
   });
   return deleteResult;
-}
-
-export async function countUsers(
-  filter?: Prisma.UserWhereInput,
-): Promise<Number> {
-  const count = await getPrismaClient().user.count({
-    where: filter,
-  });
-  return count;
 }
 
 export async function cleanupData(): Promise<any> {

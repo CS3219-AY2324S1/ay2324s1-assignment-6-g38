@@ -16,11 +16,6 @@ const AuthenticationLayer = ({ children }: Props) => {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const fetchSessionToken = async () => {
-    const response = await fetch("/api/me");
-    return response.json();
-  };
-
   useEffect(() => {
     const getUserInfo = async () => {
       if (session) {
@@ -28,7 +23,6 @@ const AuthenticationLayer = ({ children }: Props) => {
           sessionSignIn({
             currentUser: session.currentUser,
             image: session.user?.image || null,
-            sessionToken: await fetchSessionToken(),
             isLoggedIn: true,
           }),
         );

@@ -2,10 +2,6 @@ import express from "express";
 
 import type { Difficulty } from "@prisma/client";
 
-import {
-  assertIsAdmin,
-  assertIsAuthenticated,
-} from "../../commons/auth/authenticator";
 import * as questionUseCase from "../../domain/question-use-case";
 
 import {
@@ -19,7 +15,6 @@ export default function defineRoutes(expressApp: express.Application) {
 
   router.post("/", validateAddQuestionInput, async (req, res, next) => {
     try {
-      await assertIsAdmin(req);
       const addQuestionResponse = await questionUseCase.addQuestion(req.body);
       res.json(addQuestionResponse);
     } catch (error) {
@@ -29,7 +24,6 @@ export default function defineRoutes(expressApp: express.Application) {
 
   router.get("/", validateGetQuestionRequest, async (req, res, next) => {
     try {
-      await assertIsAuthenticated(req);
       const response = await questionUseCase.getQuestions({
         id: req.query.id as string,
         title: req.query.title as string,
@@ -46,18 +40,8 @@ export default function defineRoutes(expressApp: express.Application) {
     }
   });
 
-  router.get("/QOTD", async (req, res, next) => {
-    try {
-      const dailyQuestion = await questionUseCase.getDailyQuestion();
-      res.status(200).json(dailyQuestion);
-    } catch (error) {
-      next(error);
-    }
-  });
-
   router.get("/:id", async (req, res, next) => {
     try {
-      await assertIsAuthenticated(req);
       const response = await questionUseCase.getQuestionById(req.params.id);
       res.status(200).json(response);
     } catch (error) {
@@ -67,7 +51,6 @@ export default function defineRoutes(expressApp: express.Application) {
 
   router.patch("/:id", validateUpdateQuestionInput, async (req, res, next) => {
     try {
-      await assertIsAdmin(req);
       const response = await questionUseCase.updateQuestion(
         req.params.id,
         req.body,
@@ -80,7 +63,6 @@ export default function defineRoutes(expressApp: express.Application) {
 
   router.delete("/:id", async (req, res, next) => {
     try {
-      await assertIsAdmin(req);
       await questionUseCase.deleteQuestion(req.params.id);
       res.status(200).end();
     } catch (error) {

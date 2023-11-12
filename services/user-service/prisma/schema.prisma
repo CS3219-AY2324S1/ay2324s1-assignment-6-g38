@@ -14,12 +14,6 @@ model User {
   id       Int      @id @default(autoincrement())
   email    String   @unique
   name     String
-  role Role @default(USER)
   bio String?
   url String?
-}
-
-enum Role {
-  USER
-  ADMIN
 }

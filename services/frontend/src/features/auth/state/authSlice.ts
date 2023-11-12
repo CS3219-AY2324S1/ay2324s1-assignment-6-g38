@@ -10,7 +10,6 @@ import type { AuthenticationDetails } from "../types/authentication.type";
 const initialState: AuthenticationDetails = {
   currentUser: null,
   image: null,
-  sessionToken: null,
   isLoggedIn: false,
 };
 
@@ -28,7 +27,6 @@ const authSlice = createSlice({
       return {
         currentUser: null,
         image: null,
-        sessionToken: null,
         isLoggedIn: false,
       };
     },
