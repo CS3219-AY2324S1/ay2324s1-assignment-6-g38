@@ -3,6 +3,7 @@
 import { CheckIcon, ChevronsUpDown } from "lucide-react";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type * as z from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -79,15 +80,13 @@ export const QuestionForm: React.FC<QuestionFormProps> = ({
     );
 
     if (isDuplicate) {
-      alert("Error: Duplicate title or URL found.");
+      toast.error("Duplicate title or URL found.");
       setIsLoading(false);
       return;
     }
 
     // need to cast type due to how zod deals with array attributes
     addQuestion(newQuestion as QuestionType);
-    console.log("[Question Form] Creating Question", newQuestion);
-    console.log("[Question Form] Question Created, ID: ", uniqueId);
 
     setIsLoading(false);
     form.reset();

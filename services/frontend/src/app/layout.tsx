@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import React from "react";
+import { Toaster } from "sonner";
 
 import { Navbar } from "@/features/navbar";
 
@@ -22,6 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <div className="min-h-screen px-12 py-10">
+          <Toaster position="top-center" expand richColors />
           <Navbar />
           <div className="mt-8">{children}</div>
         </div>
