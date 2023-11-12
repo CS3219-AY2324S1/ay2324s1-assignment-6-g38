@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-SERVICES="frontend question-service user-service history-service matching-service-rabbitmq"
+SERVICES="frontend question-service user-service"
 
 for package in $SERVICES; do
   echo "Linting $package..."

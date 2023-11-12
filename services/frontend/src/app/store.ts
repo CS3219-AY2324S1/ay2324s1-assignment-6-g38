@@ -1,21 +1,11 @@
-import { persistReducer, persistStore } from "redux-persist";
-
 import { configureStore } from "@reduxjs/toolkit";
 
-import storage from "./customStorage";
 import { rootApi } from "./RootApi";
 import rootReducer from "./rootReducer";
 
-const persistConfig = {
-  key: "root",
-  storage,
-  whitelist: ["match"],
-};
-const persistedReducer = persistReducer(persistConfig, rootReducer);
-
 const store = configureStore({
   reducer: {
-    internal: persistedReducer,
+    internal: rootReducer,
     [rootApi.reducerPath]: rootApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -29,4 +19,3 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
 export default store;
-export const persistor = persistStore(store);
