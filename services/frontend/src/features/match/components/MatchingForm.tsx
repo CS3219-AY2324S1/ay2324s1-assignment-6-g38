@@ -38,8 +38,8 @@ import {
 
 import { cn } from "@/lib/utils";
 
-import type { Difficulty } from "@/features/questions";
 import { categoriesStub } from "@/features/questions/stubs/categories.stub";
+import type { Difficulty } from "@/features/questions/types/question.type";
 
 import { Match } from "../types/match.schema";
 import type { MatchRequest } from "../types/match.type";
@@ -67,7 +67,6 @@ export const MatchingForm: React.FC<MatchFormProps> = ({
   });
 
   const handleSubmit = (values: z.infer<typeof Match>) => {
-    console.log("Submitting", values);
     onSubmit({
       language: values.language as Language,
       difficulty: values.difficulty as Difficulty,

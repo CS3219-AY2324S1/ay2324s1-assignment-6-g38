@@ -96,5 +96,3 @@ export enum Language {
   Ruby,
   TypeScript,
 }
-
-export const DIFFICULTIES = ["easy", "medium", "hard"];

@@ -2,19 +2,14 @@
 
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
 import { io, type Socket } from "socket.io-client";
+import { toast } from "sonner";
 
 import type { MatchDetails, MatchRequest } from "@/features/match";
 import { MatchingForm } from "@/features/match";
-import { updateMatchDetails } from "@/features/match/state/matchSlice";
-import { NotificationType, setNotification } from "@/features/notifications";
 
 const page = () => {
-  const dispatch = useDispatch();
-  const { push } = useRouter();
   const URL = "http://localhost:6001";
 
   const socketRef = useRef<Socket>();
@@ -26,17 +21,12 @@ const page = () => {
     socket.on("error", (errorMessage: string) => {
       socketRef.current?.disconnect();
       setMatchPending(false);
-      const notificationPayload = {
-        type: NotificationType.ERROR,
-        value: errorMessage,
-      };
-      dispatch(setNotification(notificationPayload));
+      toast.error(errorMessage);
     });
 
     socket.on("match", (match: MatchDetails) => {
       socketRef.current?.disconnect();
-      dispatch(updateMatchDetails(match));
-      push("/collab");
+      toast.success(`Found a match! Room ID: ${match.roomId}`);
     });
     socketRef.current = socket;
   }, []);

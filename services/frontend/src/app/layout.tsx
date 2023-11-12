@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import React from "react";
+import { Toaster } from "sonner";
 
-import { ThemeProvider } from "@/components/theme-provider";
-
-import { Navbar } from "@/features/navbar";
-import { Notifications } from "@/features/notifications";
-
-import { Providers } from "./Providers";
+import { Navbar } from "@/features/navbar/components/Navbar";
 
 import "./globals.css";
 
@@ -24,22 +20,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <Providers>
-      <html lang="en">
-        <body className={inter.className}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            disableTransitionOnChange
-          >
-            <div className="container px-12 py-10">
-              <Notifications />
-              <Navbar />
-              <div className="mt-8">{children}</div>
-            </div>
-          </ThemeProvider>
-        </body>
-      </html>
-    </Providers>
+    <html lang="en">
+      <body className={inter.className}>
+        <div className="container px-12 py-10">
+          <Toaster position="top-center" expand richColors />
+          <Navbar />
+          <div className="mt-8">{children}</div>
+        </div>
+      </body>
+    </html>
   );
 }

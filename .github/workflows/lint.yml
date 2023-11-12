@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package: ['frontend', 'question-service', 'user-service', 'history-service', 'matching-service-rabbitmq']
+        package: ['frontend', 'matching-service-rabbitmq']
     steps:
       - name: Checkout code
         uses: actions/checkout@v3

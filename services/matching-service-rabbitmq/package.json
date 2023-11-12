@@ -1,7 +1,6 @@
 {
   "name": "matching-service",
   "scripts": {
-    "test": "cross-env NODE_ENV=test jest --coverage --forceExit",
     "dev": "cross-env NODE_ENV=development ts-node-dev src/entry-points/socket/start.ts | pino-pretty --colorize",
     "lint:fix": "eslint --ext .ts --fix .",
     "ci": "eslint --ext .ts . --max-warnings=-1"

@@ -8,9 +8,6 @@ import {
   getMessage,
   sendMessage,
 } from "../data-access/queue-repository";
-import { getQuestion } from "../services/question-service";
-
-import { assertQuestionExists } from "./match-validators";
 
 const logger = pino();
 
@@ -30,9 +27,18 @@ const generateQueueName = (
   return matchName;
 };
 
-const generatePayload = (language: Language, question: any) => {
+const generatePayload = (
+  difficulty: Difficulty,
+  category: string,
+  language: Language,
+) => {
   const roomId = uuidv4();
-  const payload = { roomId, language: language.toString(), question };
+  const payload = {
+    category: category.toString(),
+    difficulty: difficulty.toString(),
+    roomId,
+    language: language.toString(),
+  };
 
   logger.debug(`Generated payload: ${JSON.stringify(payload)}`);
   return payload;
@@ -102,21 +108,7 @@ const processExistingMatch = async (
 
   logger.info(`Match found for ${socketId}: ${peerSocketId}`);
 
-  // get question from question repo
-  const params = new URLSearchParams({
-    difficulty: difficulty.toString(),
-    category: category.toString(),
-    getOne: "true",
-  });
-  const response = await getQuestion(params);
-
-  if (!response || !response.ok) {
-    logger.error(`No question found for params: ${params}`);
-    return;
-  }
-
-  const responseData = await response.json();
-  const payload = generatePayload(language, responseData);
+  const payload = generatePayload(difficulty, category.toString(), language);
   logger.debug("Generated payload", payload);
 
   io.to(socketId).emit("match", payload);
@@ -132,19 +124,10 @@ export const findMatch = async (match: Match, io: Server, socket: Socket) => {
   const channel = await getChannelInstance();
   const { difficulty, category, language, socketId } = match;
 
-  logger.info(`Fetching question with ${difficulty}, ${category.toString()}`);
-  try {
-    await assertQuestionExists(difficulty.toString(), category.toString());
-  } catch (error) {
-    io.to(socketId).emit(
-      "error",
-      `Unable to find a question with difficulty: ${difficulty} and category: ${category}. Please try again with different parameters`,
-    );
-    socket.disconnect();
-  }
-
   const queueName = generateQueueName(difficulty, category, language);
-
+  // await channel.checkQueue(queueName).then((count) => {
+  //   logger.info(`Queue ${queueName} has ${count} messages`);
+  // });
   const existingMessage = await getMessage(queueName, channel);
   if (existingMessage) {
     logger.debug(
@@ -166,4 +149,7 @@ export const findMatch = async (match: Match, io: Server, socket: Socket) => {
     await sendMessage(queueName, socketId, channel);
     setMatchTimeout(queueName, socketId, io, socket);
   }
+  // await channel.checkQueue(queueName).then((count) => {
+  //   logger.info(`Queue ${queueName} now has ${count} messages`);
+  // });
 };

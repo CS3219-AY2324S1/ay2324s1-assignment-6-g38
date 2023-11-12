@@ -1,47 +1,19 @@
 "use client";
 
-import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-import { selectAuthData } from "@/features/auth";
+export default function Home() {
+  const router = useRouter();
 
-import { useGetHistoryQuery } from "@/services/historyApi";
+  useEffect(() => {
+    // redirect to /matching for assignment 5
+    router.replace("/matching");
+  }, [router]);
 
-import { HistoryTable } from "../features/home/components/HistoryTable";
-import { QuestionOfTheDayCard } from "../features/home/components/QuestionOfTheDayCard";
-import { WeeklySummaryCard } from "../features/home/components/WeeklySummaryCard";
-import { questionStub } from "../features/home/stub/questionStub";
-
-import { useApiNotifications } from "@/hooks/useApiNotifications";
-
-const page = () => {
-  const { currentUser } = useSelector(selectAuthData);
-
-  const auth = useSelector(selectAuthData);
-  const { data: history, isError: isGetHistoryError } = useGetHistoryQuery({
-    userId: auth.currentUser?.id,
-  });
-
-  useApiNotifications({
-    isError: isGetHistoryError,
-    errorMessage: "Unable to fetch history",
-  });
-
-  if (currentUser) {
-    return (
-      <div>
-        <h1 className="my-4 text-3xl font-semibold">
-          Welcome Back, {currentUser.name}!
-        </h1>
-        <div className="flex w-full gap-x-5">
-          <WeeklySummaryCard history={history ?? []} />
-          <QuestionOfTheDayCard question={questionStub} />
-        </div>
-        <h1 className="my-4 text-3xl font-semibold">Past Interview</h1>
-        <HistoryTable histories={history || []} />
-      </div>
-    );
-  }
-  return <p>Landing</p>;
-};
-
-export default page;
+  return (
+    <main>
+      <p>Home</p>
+    </main>
+  );
+}

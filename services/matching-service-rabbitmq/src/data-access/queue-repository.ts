@@ -61,6 +61,9 @@ export const getMessage = async (
   queueName: string,
   channel: Channel,
 ): Promise<false | GetMessage> => {
+  await channel.checkQueue(queueName).then((count) => {
+    logger.info(count);
+  });
   await channel.assertQueue(queueName, { durable: false, autoDelete: true });
   return channel.get(queueName, { noAck: false });
 };
