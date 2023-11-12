@@ -1,9 +1,8 @@
 "use client";
 
 import { CheckIcon, ChevronsUpDown } from "lucide-react";
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
 import type * as z from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,23 +40,20 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { cn } from "@/lib/utils";
 
+import type { QuestionType } from "..";
 import { categoriesStub } from "../stubs/categories.stub";
 import { Question } from "../types/question.schema";
 
 interface QuestionFormProps {
-  onSubmit: (values: z.infer<typeof Question>) => void;
-  formSubmitStatus: {
-    isError: boolean;
-    isSuccess: boolean;
-    isLoading: boolean;
-  };
+  addQuestion: (newQuestion: QuestionType) => void;
+  currentQuestions: QuestionType[];
 }
 
 export const QuestionForm: React.FC<QuestionFormProps> = ({
-  onSubmit,
-  formSubmitStatus,
+  addQuestion,
+  currentQuestions,
 }) => {
-  const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const form = useForm<z.infer<typeof Question>>({
     resolver: zodResolver(Question),
     defaultValues: {
@@ -70,12 +66,32 @@ export const QuestionForm: React.FC<QuestionFormProps> = ({
     mode: "all",
   });
 
-  useEffect(() => {
-    if (formSubmitStatus.isSuccess) {
-      form.reset();
+  function onSubmit(values: z.infer<typeof Question>) {
+    setIsLoading(true);
+    const uniqueId = Math.floor(Math.random() * 1000000).toString();
+    const newQuestion = { ...values, id: uniqueId };
+
+    // Check for duplicate titles or URLs
+    const isDuplicate = currentQuestions.some(
+      (question) =>
+        question.title === newQuestion.title ||
+        question.link === newQuestion.link,
+    );
+
+    if (isDuplicate) {
+      alert("Error: Duplicate title or URL found.");
+      setIsLoading(false);
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formSubmitStatus.isSuccess]);
+
+    // need to cast type due to how zod deals with array attributes
+    addQuestion(newQuestion as QuestionType);
+    console.log("[Question Form] Creating Question", newQuestion);
+    console.log("[Question Form] Question Created, ID: ", uniqueId);
+
+    setIsLoading(false);
+    form.reset();
+  }
 
   return (
     <Form {...form}>
@@ -111,16 +127,18 @@ export const QuestionForm: React.FC<QuestionFormProps> = ({
                         !field.value && "text-muted-foreground",
                       )}
                     >
-                      {field.value && field.value.length > 0
-                        ? field.value
-                            .map((val) =>
-                              categoriesStub.find(
-                                (category) => category === val,
-                              ),
-                            )
-                            .filter(Boolean)
-                            .join(", ")
-                        : "Select categories"}
+                      <p className="max-h-8 overflow-y-auto">
+                        {field.value && field.value.length > 0
+                          ? field.value
+                              .map((val) =>
+                                categoriesStub.find(
+                                  (category) => category === val,
+                                ),
+                              )
+                              .filter(Boolean)
+                              .join(", ")
+                          : "Select categories"}
+                      </p>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </FormControl>
@@ -239,7 +257,7 @@ export const QuestionForm: React.FC<QuestionFormProps> = ({
         <Button
           type="submit"
           disabled={!form.formState.isValid}
-          isLoading={formSubmitStatus.isLoading}
+          isLoading={isLoading}
         >
           Submit
         </Button>

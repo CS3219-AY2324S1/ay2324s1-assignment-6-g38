@@ -1,58 +1,47 @@
 "use client";
 
-import React from "react";
-import type * as z from "zod";
+import React, { useEffect, useState } from "react";
 
-import type { QuestionWithoutIdType } from "@/features/questions";
+import type { QuestionType } from "@/features/questions";
 import { QuestionCard, QuestionForm } from "@/features/questions";
-import type { Question } from "@/features/questions/types/question.schema";
-
-import {
-  useAddQuestionMutation,
-  useDeleteQuestionMutation,
-  useGetQuestionsQuery,
-} from "../../services/questionApi";
-
-import { useApiNotifications } from "@/hooks/useApiNotifications";
 
 const page = () => {
-  const [
-    addQuestion,
-    { isSuccess: isAddSuccess, isLoading: isAddLoading, isError: isAddError },
-  ] = useAddQuestionMutation();
+  const [questions, setQuestions] = useState<QuestionType[]>([]);
 
-  const [
-    deleteQuestion,
-    { isSuccess: isDeleteSuccess, isError: isDeleteError },
-  ] = useDeleteQuestionMutation();
+  useEffect(() => {
+    const storedQuestions = JSON.parse(
+      localStorage.getItem("questions") || "[]",
+    );
 
-  const { data: questions = [], isError: isGetQuestionsError } =
-    useGetQuestionsQuery();
+    setQuestions(storedQuestions);
+  }, [questions]);
 
-  useApiNotifications({
-    isSuccess: isAddSuccess,
-    isError: isAddError,
-    successMessage: "Question successfully added!",
-    errorMessage:
-      "Something went wrong while adding your question. Please try again later.",
-  });
+  const addQuestion = (newQuestion: QuestionType) => {
+    setQuestions((prevQuestions) => [...prevQuestions, newQuestion]);
+    localStorage.setItem(
+      "questions",
+      JSON.stringify([...questions, newQuestion]),
+    );
+  };
 
-  useApiNotifications({
-    isSuccess: isDeleteSuccess,
-    isError: isDeleteError,
-    successMessage: "Question successfully deleted!",
-    errorMessage:
-      "Something went wrong while deleting your question. Please try again later.",
-  });
+  const deleteQuestion = (id: string) => {
+    const existingQuestions: QuestionType[] = JSON.parse(
+      localStorage.getItem("questions") || "[]",
+    );
 
-  useApiNotifications({
-    isError: isGetQuestionsError,
-    errorMessage:
-      "Something went wrong while retrieving the questions. Please try again later.",
-  });
+    console.log(existingQuestions);
 
-  const handleAddQuestion = (newQuestion: z.infer<typeof Question>) => {
-    addQuestion(newQuestion as QuestionWithoutIdType);
+    // Filter out the question with the given id
+    const updatedQuestions = existingQuestions.filter(
+      (question) => question.id.toString() !== id,
+    );
+
+    // Save the updated list back to local storage
+    localStorage.setItem("questions", JSON.stringify(updatedQuestions));
+  };
+
+  const renderNumQuestions = (numQuestions: number) => {
+    return `${numQuestions} Question${numQuestions > 1 ? "s" : ""}`;
   };
 
   return (
@@ -63,17 +52,15 @@ const page = () => {
           <div className="w-1/2">
             <h1 className="mb-8 flex text-2xl">Add New Question</h1>
             <QuestionForm
-              onSubmit={handleAddQuestion}
-              formSubmitStatus={{
-                isError: isAddError,
-                isLoading: isAddLoading,
-                isSuccess: isAddSuccess,
-              }}
+              addQuestion={addQuestion}
+              currentQuestions={questions}
             />
           </div>
           <div className="w-1/2">
-            <h1 className="mb-8 flex text-2xl">All Questions</h1>
-            <div className="flex flex-col gap-4">
+            <h1 className="mb-8 flex text-2xl">
+              {renderNumQuestions(questions?.length ?? 0)}
+            </h1>
+            <div className="mr-4 flex max-h-[60vh] flex-col gap-4 overflow-y-auto">
               {questions.map(
                 ({ id, title, categories, difficulty, description, link }) => (
                   <div key={id.toString()}>
@@ -85,7 +72,6 @@ const page = () => {
                       description={description}
                       link={link}
                       deleteQuestion={deleteQuestion}
-                      deleteQuestionError={isDeleteError}
                     />
                   </div>
                 ),

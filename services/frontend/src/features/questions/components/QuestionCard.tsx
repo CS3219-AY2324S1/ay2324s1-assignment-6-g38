@@ -1,5 +1,5 @@
 import { Link as LinkIcon } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import {
   Accordion,
@@ -28,7 +28,6 @@ export interface QuestionCardProps {
   difficulty: Difficulty;
   link: string;
   deleteQuestion: (id: string) => void;
-  deleteQuestionError: boolean;
 }
 
 export const QuestionCard: React.FC<QuestionCardProps> = ({
@@ -39,7 +38,6 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   description,
   link,
   deleteQuestion,
-  deleteQuestionError,
 }) => {
   const [isDeletePending, setIsDeletePending] = useState<boolean>(false);
 
@@ -48,12 +46,6 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
     console.log("[QuestionCard] Deleting ID: ", id);
     deleteQuestion(id);
   };
-
-  useEffect(() => {
-    if (deleteQuestionError) {
-      setIsDeletePending(false);
-    }
-  }, [deleteQuestionError]);
 
   return (
     <Card>
@@ -69,19 +61,21 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
               </div>
             </AccordionTrigger>
             <CardDescription>
-              <div className="flex gap-2">
+              <div className="mb-8 flex gap-2 overflow-x-auto">
                 <CategoryBadge categories={categories} />
               </div>
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <AccordionContent>
-              {description.split("\n").map((line, index) => (
-                <React.Fragment key={`${line}-${index}`}>
-                  {line}
-                  <br />
-                </React.Fragment>
-              ))}
+            <AccordionContent className="break-words">
+              <p className="max-h-[30vh] overflow-y-auto ">
+                {description.split("\n").map((line, index) => (
+                  <React.Fragment key={`${line}-${index}`}>
+                    {line}
+                    <br />
+                  </React.Fragment>
+                ))}
+              </p>
             </AccordionContent>
           </CardContent>
 
