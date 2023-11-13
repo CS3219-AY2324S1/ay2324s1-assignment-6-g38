@@ -62,7 +62,7 @@ const setMatchTimeout = (
       );
       await channel.ack(timedOutMessage);
       io.to(socketId).emit(
-        "timeout",
+        "error",
         "No match found within the timeout period.",
       );
       socket.disconnect();
@@ -125,9 +125,6 @@ export const findMatch = async (match: Match, io: Server, socket: Socket) => {
   const { difficulty, category, language, socketId } = match;
 
   const queueName = generateQueueName(difficulty, category, language);
-  // await channel.checkQueue(queueName).then((count) => {
-  //   logger.info(`Queue ${queueName} has ${count} messages`);
-  // });
   const existingMessage = await getMessage(queueName, channel);
   if (existingMessage) {
     logger.debug(
@@ -149,7 +146,7 @@ export const findMatch = async (match: Match, io: Server, socket: Socket) => {
     await sendMessage(queueName, socketId, channel);
     setMatchTimeout(queueName, socketId, io, socket);
   }
-  // await channel.checkQueue(queueName).then((count) => {
-  //   logger.info(`Queue ${queueName} now has ${count} messages`);
-  // });
+  await channel.checkQueue(queueName).then((replies) => {
+    logger.info(`Queue ${queueName} now has ${replies.messageCount} messages`);
+  });
 };

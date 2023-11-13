@@ -61,10 +61,10 @@ export const getMessage = async (
   queueName: string,
   channel: Channel,
 ): Promise<false | GetMessage> => {
-  await channel.checkQueue(queueName).then((count) => {
-    logger.info(count);
-  });
   await channel.assertQueue(queueName, { durable: false, autoDelete: true });
+  await channel.checkQueue(queueName).then((replies) => {
+    logger.info(`Queue ${queueName} has ${replies.messageCount} messages`);
+  });
   return channel.get(queueName, { noAck: false });
 };
 

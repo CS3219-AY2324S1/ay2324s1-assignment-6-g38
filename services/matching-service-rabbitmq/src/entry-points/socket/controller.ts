@@ -27,7 +27,11 @@ export const defineEventListeners = (io: Server) => {
       await findMatch({ ...data, socketId: socket.id }, io, socket);
     });
 
-    socket.on("disconnect", () => {
+    socket.on("disconnecting", () => {
+      io.to(socket.id).emit(
+        "error",
+        "Connection lost. Please try again in a while.",
+      );
       logger.warn(`User disconnected with socket id: ${socket.id}`);
     });
   });

@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckIcon, ChevronsUpDown } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
@@ -49,13 +49,16 @@ interface MatchFormProps {
   handleLeaveQueue: () => void;
   onSubmit: (values: MatchRequest) => void;
   matchPending: boolean;
+  queueTime: number | undefined;
 }
 
 export const MatchingForm: React.FC<MatchFormProps> = ({
   handleLeaveQueue,
   onSubmit,
   matchPending,
+  queueTime,
 }) => {
+  const [buttonText, setButtonText] = useState<string>("Waiting...");
   const form = useForm<z.infer<typeof Match>>({
     resolver: zodResolver(Match),
     defaultValues: {
@@ -73,6 +76,22 @@ export const MatchingForm: React.FC<MatchFormProps> = ({
       category: values.category,
     });
   };
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (queueTime) {
+      timer = setInterval(() => {
+        const secondsDiff = Math.floor((Date.now() - queueTime) / 1000);
+        const minutes = Math.floor(secondsDiff / 60)
+          .toString()
+          .padStart(2, "0");
+        const seconds = (secondsDiff % 60).toString().padStart(2, "0");
+        setButtonText(`${minutes}:${seconds}`);
+      }, 1000);
+    }
+    // eslint-disable-next-line consistent-return
+    return () => clearTimeout(timer);
+  }, [queueTime]);
 
   return (
     <Form {...form}>
@@ -209,12 +228,13 @@ export const MatchingForm: React.FC<MatchFormProps> = ({
         />
         <div className="flex gap-4">
           <Button
+            className="w-[20%]"
             type="submit"
             disabled={
               !(form.getValues("difficulty") && form.getValues("language"))
             }
             isLoading={matchPending}
-            loadingText="Waiting"
+            loadingText={buttonText}
           >
             Submit
           </Button>
