@@ -1,0 +1,2 @@
+# ignore all shadcn/ui components and utils
+tailwind.config.ts

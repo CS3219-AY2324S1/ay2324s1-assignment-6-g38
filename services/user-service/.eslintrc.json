@@ -1,0 +1,59 @@
+{
+  "env": {
+    "es6": true
+  },
+  "ignorePatterns": ["dist/"],
+  "extends": [
+    "airbnb-base",
+    "airbnb-typescript/base",
+    "plugin:prettier/recommended"
+  ],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "unused-imports",
+    "import",
+    "simple-import-sort"
+  ],
+  "rules": {
+    "import/no-extraneous-dependencies": [
+      "error",
+      {"devDependencies": true}
+    ],
+    "import/extensions": "off", // Avoid missing file extension errors, TypeScript already provides a similar feature
+    "@typescript-eslint/consistent-type-imports": "error", // Ensure `import type` is used when it's necessary
+    "@typescript-eslint/no-unused-vars": "off",
+    "no-empty-function": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "no-restricted-syntax": [
+      "error",
+      "ForInStatement",
+      "LabeledStatement",
+      "WithStatement"
+    ], // Overrides Airbnb configuration and enable no-restricted-syntax
+    "import/prefer-default-export": "off", // Named export is easier to refactor automatically
+    "unused-imports/no-unused-imports": "warn",
+    "unused-imports/no-unused-vars": ["warn"],
+    "import/order": "off",
+    "simple-import-sort/imports": [
+      "error",
+      {
+        "groups": [
+          // Node.js builtins and modules
+          ["^\\w"],
+          // External packages
+          ["^@?\\w"],
+          // Internal packages
+          ["^@/(utils|config|etc)"],
+          // Parent imports
+          ["^\\.\\.(?!/?$)", "^\\.\\./?$"],
+          // Other relative imports
+          ["^\\./(?=.*/)(?!/?$)", "^\\./?$"]
+        ]
+      }
+    ],
+    "simple-import-sort/exports": "error"
+  }
+}

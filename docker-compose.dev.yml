@@ -1,0 +1,168 @@
+version: '3.8'
+
+services:
+  question-service:
+    restart: on-failure
+    build:
+      context: ./services/question-service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/question-service:/app
+    depends_on:
+      - mongodb
+      - test-question-db
+    environment:
+      - DATABASE_URL=mongodb://mongodb-user:mongodb-pass@mongodb:27017/question-db?authSource=admin
+      - PORT=5001
+    ports:
+      - '5001:5001'
+      
+  mongodb:
+    restart: always
+    build: ./services/question-service/mongodb-rs
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongodb-user
+      MONGO_INITDB_ROOT_PASSWORD: mongodb-pass
+      MONGO_INITDB_DATABASE: question-db
+      MONGO_REPLICA_HOST: mongodb
+      MONGO_REPLICA_PORT: '27017'
+    volumes:
+      - mongodb_master_data:/data/db
+    ports:
+      - '27017:27017'
+
+  test-question-db:
+    restart: always
+    build: ./services/question-service/mongodb-rs
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongodb-user
+      MONGO_INITDB_ROOT_PASSWORD: mongodb-pass
+      MONGO_INITDB_DATABASE: test-question-db
+      MONGO_REPLICA_HOST: test-question-db
+      MONGO_REPLICA_PORT: '27017'
+    ports:
+      - '27016:27017'
+
+  user-service:
+    restart: on-failure
+    build: 
+      context: ./services/user-service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/user-service:/app
+    depends_on:
+      - user-db
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@user-db:5432/user-service?schema=public
+      - SERVER_PORT=2001
+    ports:
+      - '2001:2001'
+  
+  user-db:
+    restart: always
+    image: postgres
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=user-service
+    ports:
+      - '6542:5432'
+  
+  test-user-db:
+    restart: always
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=test-user-service
+    ports:
+      - '6543:5432'
+  
+  collab-service:
+    restart: on-failure
+    build:
+      context: ./services/collab-service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/collab-service:/app
+    ports:
+      - '4001:4001'
+  
+  history-service:
+    restart: on-failure
+    build: 
+      context: ./services/history-service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/history-service:/app
+    depends_on:
+      - history-db
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@history-db:5432/history-service?schema=public
+      - SERVER_PORT=1001
+      - USER_SERVICE_BASE_URL=http://user-service:2001
+      - QUESTION_SERVICE_BASE_URL=http://question-service:5001
+    ports:
+      - '1001:1001'
+  
+  history-db:
+    restart: always
+    image: postgres
+    volumes:
+      - history-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=history-service
+    ports:
+      - '1542:5432'
+  
+  test-history-db:
+    restart: always
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=test-history-service
+    ports:
+      - '1543:5432'
+
+  matching-service-rabbitmq:
+    restart: on-failure
+    build: 
+      context: ./services/matching-service-rabbitmq
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/matching-service-rabbitmq:/app
+    depends_on:
+      - rabbitmq
+    environment:
+      - PORT=6001
+      - RABBITMQ_URL=amqp://rabbitmq
+    ports:
+      - '6001:6001'
+
+  rabbitmq:
+    image: rabbitmq:management
+    restart: always
+    ports:
+      - '15672:15672'  # Management Console
+      - '5672:5672'    # RabbitMQ service
+
+  rabbitmq-test:
+    image: rabbitmq:management
+    restart: always
+    ports:
+      - '15673:15672'  # Management Console
+      - '5673:5672'    # RabbitMQ service
+
+volumes:
+  mongodb_master_data:
+    driver: local
+  history-db-data:
+    driver: local
+  user-db-data:
+    driver: local
+  

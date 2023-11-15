@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "target": "ES2018",
+    "sourceMap": true,
+    "lib": [
+      "esnext"
+    ],
+    "esModuleInterop": true,
+    "alwaysStrict": true,
+    "strict": true,
+  },
+  "exclude": ["node_modules", "dist", "*.d.ts"]
+}

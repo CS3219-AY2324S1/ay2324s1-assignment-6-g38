@@ -1,0 +1,36 @@
+name: Lint
+
+on:
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: ['frontend', 'question-service', 'user-service', 'history-service', 'matching-service-rabbitmq']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v2
+        with:
+          path: services/${{ matrix.package }}/node_modules
+          key: ${{ runner.OS }}-node-${{ matrix.package }}-${{ hashFiles('services/${{ matrix.package }}/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-node-${{ matrix.package }}-
+            ${{ runner.OS }}-node-
+            
+      - name: Install dependencies for ${{ matrix.package }}
+        run: cd services/${{ matrix.package }} && npm install
+
+      - name: Run CI script for ${{ matrix.package }}
+        run: cd services/${{ matrix.package }} && npm run ci

@@ -1,0 +1,55 @@
+name: Test
+
+on:
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  test-services:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: ['history-service', 'user-service']
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/testdb?schema=public
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+      
+      - name: Cache Node.js modules
+        uses: actions/cache@v2
+        with:
+          path: services/${{ matrix.package }}/node_modules
+          key: ${{ runner.OS }}-node-${{ matrix.package }}-${{ hashFiles('services/${{ matrix.package }}/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-node-${{ matrix.package }}-
+            ${{ runner.OS }}-node-
+      
+      - name: Install dependencies for ${{ matrix.package }}
+        run: cd services/${{ matrix.package }} && npm install
+
+      - name: Run Test script for ${{ matrix.package }}
+        run: cd services/${{ matrix.package }} && npm run test

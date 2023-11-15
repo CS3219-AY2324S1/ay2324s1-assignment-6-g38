@@ -1,0 +1,41 @@
+button {
+    display: block;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.synced-editor {
+    display: flex;
+    flex-direction: row;
+    height: 98%;
+    width: 100%;
+}
+
+.editor-container {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    border: 1px solid slategrey;
+    box-shadow: 0 0 1px 1px gray;
+    padding: 4px 0;
+}
+
+.user-display-container {
+    display: flex;
+    flex-direction: row;
+    width: 50%;
+    height: 100;
+    padding-left: 8px;
+}
+
+.users-display-div {
+    display: block;
+    height: 100%;
+    width: 12px;
+}
+
+.chat-div {
+    display: block;
+    height: 100%;
+    width: calc(100% - 12px);
+}
