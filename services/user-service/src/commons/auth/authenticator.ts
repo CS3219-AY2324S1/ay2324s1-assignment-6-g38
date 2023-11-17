@@ -33,7 +33,7 @@ function isSelfOrAdmin(token: JWT, id: number) {
 export async function assertIsSelfOrAdmin(req: Request, userId: number) {
   const token = await extractToken(req);
   if (!isSelfOrAdmin(token, userId)) {
-    throw new HttpError("You do not have the correct permission", 401);
+    throw new HttpError("You do not have the correct permission", 403);
   }
 }
 
@@ -41,6 +41,6 @@ export async function assertIsSelfOrAdmin(req: Request, userId: number) {
 export async function assertIsAdmin(req: Request) {
   const token = await extractToken(req);
   if (!isAdmin(token)) {
-    throw new HttpError("This requires admin permission", 401);
+    throw new HttpError("This requires admin permission", 403);
   }
 }
