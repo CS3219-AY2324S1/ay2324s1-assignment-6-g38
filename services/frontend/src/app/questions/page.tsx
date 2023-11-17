@@ -97,7 +97,15 @@ const page = () => {
             </h1>
             <div className="flex flex-col gap-4">
               {questions.map(
-                ({ id, title, categories, difficulty, description, link }) => (
+                ({
+                  id,
+                  title,
+                  categories,
+                  difficulty,
+                  description,
+                  link,
+                  isHtml,
+                }) => (
                   <div key={id.toString()}>
                     <QuestionCard
                       id={id}
@@ -108,6 +116,7 @@ const page = () => {
                       link={link}
                       deleteQuestion={deleteQuestion}
                       deleteQuestionError={isDeleteError}
+                      isHtml={isHtml}
                     />
                   </div>
                 ),

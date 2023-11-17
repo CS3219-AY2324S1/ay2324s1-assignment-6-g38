@@ -31,15 +31,17 @@ const getQuestionList = async () => {
   }
 };
 
-const populateQuestionDatabase = async () => {
+const populateQuestionDatabase = async (length) => {
   try {
-    const questions = await getQuestionList(); // Await the result of getQuestionList
+    const res = await getQuestionList(); // Await the result of getQuestionList
+    const questions = res.slice(0, length)
     if (!questions) {
       throw new Error('Failed to get questions');
     }
     const questionServiceEndpoint = "http://localhost:5001/question/";
     for (const question of questions) {
       const formattedQuestion = {
+        isHtml: true,
         title: question.title,
         categories: question.topicTags.map(tag => tag.name), // Assuming topicTags is an array of objects with a name property
         difficulty: question.difficulty,
@@ -61,5 +63,5 @@ const populateQuestionDatabase = async () => {
   }
 };
 
-populateQuestionDatabase(); // Call the function to populate the database
+populateQuestionDatabase(6); // Call the function to populate the database
 

@@ -5,6 +5,7 @@ export interface QuestionType {
   difficulty: Difficulty;
   description: string;
   link: string;
+  isHtml: boolean;
 }
 
 export type QuestionWithoutIdType = Omit<QuestionType, "id">;

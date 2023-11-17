@@ -10,6 +10,7 @@ export const QuestionRecordSchema = z.object({
   difficulty: z.nativeEnum(Difficulty),
   link: z.string().url(),
   isDeleted: z.boolean().optional(),
+  isHtml: z.boolean().optional(),
 });
 
 export const AddQuestionSchema = QuestionRecordSchema.omit({ id: true });

@@ -27,6 +27,7 @@ export interface QuestionCardProps {
   description: string;
   difficulty: Difficulty;
   link: string;
+  isHtml: boolean;
   deleteQuestion: (id: string) => void;
   deleteQuestionError: boolean;
 }
@@ -40,6 +41,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   link,
   deleteQuestion,
   deleteQuestionError,
+  isHtml,
 }) => {
   const [isDeletePending, setIsDeletePending] = useState<boolean>(false);
 
@@ -76,12 +78,16 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           </CardHeader>
           <CardContent>
             <AccordionContent className="break-words">
-              {description.split("\n").map((line, index) => (
-                <React.Fragment key={`${line}-${index}`}>
-                  {line}
-                  <br />
-                </React.Fragment>
-              ))}
+              {isHtml ? (
+                <p dangerouslySetInnerHTML={{ __html: description }} />
+              ) : (
+                description.split("\n").map((line, index) => (
+                  <React.Fragment key={`${line}-${index}`}>
+                    {line}
+                    <br />
+                  </React.Fragment>
+                ))
+              )}
             </AccordionContent>
           </CardContent>
 

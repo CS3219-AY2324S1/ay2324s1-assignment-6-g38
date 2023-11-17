@@ -1,3 +1,5 @@
+import React from "react";
+
 import {
   Card,
   CardContent,
@@ -20,7 +22,7 @@ export function QuestionDisplay({
   question,
   contentClassName,
 }: QuestionDisplayProps) {
-  const { title, categories, difficulty, description, link } = question;
+  const { title, categories, difficulty, description, link, isHtml } = question;
   return (
     <Card className="h-full">
       <CardHeader>
@@ -33,7 +35,16 @@ export function QuestionDisplay({
         </CardDescription>
       </CardHeader>
       <CardContent className={`${contentClassName} overflow-auto text-xs`}>
-        <div dangerouslySetInnerHTML={{ __html: description }} />
+        {isHtml ? (
+          <p dangerouslySetInnerHTML={{ __html: description }} />
+        ) : (
+          description.split("\n").map((line, index) => (
+            <React.Fragment key={`${line}-${index}`}>
+              {line}
+              <br />
+            </React.Fragment>
+          ))
+        )}
       </CardContent>
     </Card>
   );

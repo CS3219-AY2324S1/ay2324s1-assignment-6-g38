@@ -25,6 +25,7 @@ model Question {
   link             String
   isDeleted        Boolean  @default(false)
   QuestionOfTheDay QuestionOfTheDay[]
+  isHtml Boolean @default(false)
 }
 
 model QuestionOfTheDay {
