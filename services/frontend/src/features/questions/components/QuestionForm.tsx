@@ -169,6 +169,8 @@ export const QuestionForm: React.FC<QuestionFormProps> = ({
                               // required to suppress zod compatibility issues with array objects
                               Array.from(valueSet) as [string, ...string[]],
                             );
+
+                            form.trigger("categories");
                           }}
                         >
                           {category}
