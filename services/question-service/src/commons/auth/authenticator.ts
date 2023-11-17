@@ -35,7 +35,7 @@ export async function assertIsAdmin(req: Request) {
   logger.info(`TOKEN: ${JSON.stringify(token)}`);
   if (!isAdmin(token)) {
     logger.info(`AUTH RESULT: NO PERMISSIONS (NOT ADMIN)`);
-    throw new HttpError("This requires admin permission", 403);
+    throw new HttpError("This requires admin permission", 401);
   } else {
     logger.info(`AUTH RESULT: YES PERMISSION (ADMIN)`);
   }
