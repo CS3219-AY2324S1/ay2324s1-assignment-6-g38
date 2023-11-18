@@ -24,6 +24,15 @@ export default function defineRoutes(expressApp: express.Application) {
     }
   });
 
+  router.post("/bulk", async (req, res, next) => {
+    try {
+      const addQuestionResponse = await questionUseCase.addQuestions(req.body);
+      res.json(addQuestionResponse);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   router.get("/", validateGetQuestionRequest, async (req, res, next) => {
     try {
       let isDeleted;

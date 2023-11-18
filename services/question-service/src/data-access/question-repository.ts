@@ -16,6 +16,14 @@ export async function addNewQuestion(
   });
 }
 
+export async function addNewQuestions(
+  newQuestionRecordRequests: QuestionRequest[],
+): Promise<Prisma.BatchPayload> {
+  return getPrismaClient().question.createMany({
+    data: newQuestionRecordRequests,
+  });
+}
+
 export async function getQuestions(
   filter: Partial<QuestionFilter>,
 ): Promise<QuestionRecord[] | null> {

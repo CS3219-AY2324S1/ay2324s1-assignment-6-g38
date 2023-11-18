@@ -4,7 +4,11 @@ import type { QuestionFilter, QuestionRequest } from "../../types";
 import HttpError from "../commons/error/index";
 import * as questionRepo from "../data-access/question-repository";
 
-import { AddQuestionSchema, UpdateQuestionSchema } from "./question-schema"; // Import your schemas here
+import {
+  AddQuestionSchema,
+  AddQuestionsSchema,
+  UpdateQuestionSchema,
+} from "./question-schema"; // Import your schemas here
 import {
   assertQuestionExistsById,
   assertQuestionNotExistByLink,
@@ -27,6 +31,12 @@ export async function addQuestion(newQuestion: QuestionRequest) {
   await assertQuestionNotExistsByTitle(newQuestion.title);
   const validatedData = AddQuestionSchema.parse(newQuestion);
   const response = await questionRepo.addNewQuestion(validatedData);
+  return response;
+}
+
+export async function addQuestions(newQuestions: QuestionRequest[]) {
+  const validatedData = AddQuestionsSchema.parse(newQuestions);
+  const response = await questionRepo.addNewQuestions(validatedData);
   return response;
 }
 
