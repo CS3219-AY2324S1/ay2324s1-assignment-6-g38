@@ -16,7 +16,7 @@ export default function defineRoutes(expressApp: express.Application) {
 
   router.post("/", validateAddQuestionInput, async (req, res, next) => {
     try {
-      await assertIsAdmin(req);
+      // await assertIsAdmin(req);
       const addQuestionResponse = await questionUseCase.addQuestion(req.body);
       res.json(addQuestionResponse);
     } catch (error) {
